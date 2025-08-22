@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0", "pybind11>=2.10", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "foodgen"
+version = "0.0.1"
+authors = [
+  { name="KhoiDOO", email="khoido8899@gmail.com" },
+]
+description = "Text-to-Food generation"
+readme = "README.md" # Create a README.md file later
+requires-python = ">=3.8"
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "tqdm",
+  "beartype",
+  "einops==0.8.1",
+  "ema-pytorch==0.7.7",
+  "memory-efficient-attention-pytorch==0.1.6",
+  "pillow",
+  "sentencepiece==0.2.1",
+  "transformers==4.55.3",
+  "vector-quantize-pytorch==1.23.1",
+  "accelerate==1.10.0"
+]
+
+[tool.setuptools]
+packages = ["models"]
+
+[project.urls]
+"Homepage" = "https://github.com/KhoiDOO/computational-geometry" # Replace with your project URL
+"Bug Tracker" = "https://github.com/KhoiDOO/computational-geometry/issues" # Replace with your bug tracker URL
