@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: foodgendownload
 spec:
-  # ttlSecondsAfterFinished: 60
+  ttlSecondsAfterFinished: 60
   template:
     spec:
       schedulerName: volcano
@@ -17,7 +17,7 @@ spec:
           claimName: dokh-foodgen-share-pvc
       containers:
       - name: download
-        image: pytorch/pytorch:2.4.1-cuda12.1-cudnn9-runtime
+        image: kohido/foodgen:v0.0.1
         env:
         - name: PYTHONUNBUFFERED
           value: "1"
@@ -26,18 +26,19 @@ spec:
             secretKeyRef:
               name: foodgen-secret
               key: GITHUB_TOKEN
-        command: ["/bin/bash", "-c"]
+        command: ["bash","-lc"]
         args:
         - |
-            set -euxo pipefail
+            set -e
             df -h
-            # The Docker image built from data.dockerfile should contain all dependencies.
-            # The command to run the application would go here.
-            # For example:
-            # cd /workspace
-            # git clone https://${GITHUB_TOKEN}@github.com/KhoiDOO/foodgen.git
-            # cd foodgen/data
-            # python download.py
+            cd /mnt/data
+            pip --version
+            pip install pillow tqdm
+            if [ ! -d "foodgen" ]; then
+              git clone https://${GITHUB_TOKEN}@github.com/KhoiDOO/foodgen.git
+            fi
+            cd foodgen/data
+            python3 download.py
         volumeMounts:
         - {name: home, mountPath: /workspace}
         - {name: data, mountPath: /mnt/data}

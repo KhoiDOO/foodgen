@@ -5,6 +5,8 @@ from PIL import Image
 from multiprocessing import Pool
 import argparse
 
+PIL.Image.MAX_IMAGE_PIXELS = 933120000
+
 # Get the directory of this script
 base_dir = os.path.dirname(os.path.abspath(__file__))
 # Path to source.csv
