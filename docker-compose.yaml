@@ -1,0 +1,14 @@
+services:
+  foodgen:
+    build:
+      context: .
+      dockerfile: config.dockerfile
+    image: foodgen:latest
+    volumes:
+      - ./data:/data  # Mount local data directory
+      - ./results:/results  # Mount local result directory
+    environment:
+      - token=${token}
+networks:
+  default:
+    name: foodgen_network
