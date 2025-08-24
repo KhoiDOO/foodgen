@@ -26,7 +26,8 @@ dependencies = [
   "sentencepiece==0.2.1",
   "transformers==4.55.3",
   "vector-quantize-pytorch==1.23.1",
-  "accelerate==1.10.0"
+  "accelerate==1.10.0",
+  "omegaconf==2.3.0"
 ]
 
 [tool.setuptools]

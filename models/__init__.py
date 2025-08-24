@@ -1,0 +1,1 @@
+from .maskgit.vqgan_vae import VQGanVAE

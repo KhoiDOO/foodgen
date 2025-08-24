@@ -1,0 +1,47 @@
+name: vqganvae
+exp_root_dir: outputs
+exp_dir: ""
+trial_dir: ""
+n_gpus: 1
+seed: 42
+
+model: VQGanVAE
+model_config:
+  dim: 256
+  layers: 4
+  l2_recon_loss: false
+  use_hinge_loss: true
+  vgg: null
+  lookup_free_quantization: true
+  codebook_size: 65536
+  vq_kwargs:
+    codebook_dim: 256
+    decay: 0.8
+    commitment_weight: 1.0
+    kmeans_init: true
+    use_cosine_sim: true
+  lfq_kwargs:
+    diversity_gamma: 4.0
+  use_vgg_and_gan: true
+  discr_layers: 4
+  model_kwargs: {}
+
+trainer: VQGanVAETrainer
+trainer_config:
+  folder: null
+  num_train_steps: 50000
+  batch_size: 4
+  image_size: 256
+  lr: 0.0003
+  grad_accum_every: 1
+  max_grad_norm: null
+  discr_max_grad_norm: null
+  save_results_every: 100
+  save_model_every: 1000
+  valid_frac: 0.05
+  random_split_seed: 42
+  use_ema: true
+  ema_beta: 0.995
+  ema_update_after_step: 0
+  ema_update_every: 1
+  apply_grad_penalty_every: 4

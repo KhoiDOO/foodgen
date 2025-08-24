@@ -1,0 +1,1 @@
+from .vqganvae import VQGanVAETrainer

@@ -114,7 +114,7 @@ class ImageDataset(Dataset):
 
 # main trainer class
 
-@beartype
+# @beartype
 class VQGanVAETrainer(nn.Module):
     def __init__(
         self,
