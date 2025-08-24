@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: foodgendownload
+spec:
+  # ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      schedulerName: volcano
+      restartPolicy: Never
+      volumes:
+      - name: home
+        persistentVolumeClaim:
+          claimName: dokh-foodgen-pvc
+      - name: data
+        persistentVolumeClaim:
+          claimName: dokh-foodgen-share-pvc
+      containers:
+      - name: download
+        image: pytorch/pytorch:2.4.1-cuda12.1-cudnn9-runtime
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: foodgen-secret
+              key: GITHUB_TOKEN
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+            set -euxo pipefail
+            df -h
+            # The Docker image built from data.dockerfile should contain all dependencies.
+            # The command to run the application would go here.
+            # For example:
+            # cd /workspace
+            # git clone https://${GITHUB_TOKEN}@github.com/KhoiDOO/foodgen.git
+            # cd foodgen/data
+            # python download.py
+        volumeMounts:
+        - {name: home, mountPath: /workspace}
+        - {name: data, mountPath: /mnt/data}
+        resources:
+          limits:   { nvidia.com/gpu: 2, cpu: "2",  memory: "8Gi" }
+          requests: { nvidia.com/gpu: 2, cpu: "1",  memory: "6Gi" }

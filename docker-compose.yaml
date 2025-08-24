@@ -9,6 +9,14 @@ services:
       - ./results:/results  # Mount local result directory
     environment:
       - token=${token}
+
+  foodgen-download:
+    build:
+      context: .
+      dockerfile: data.dockerfile
+    image: foodgen:latest
+    volumes:
+      - ./data:/data  # Mount local data directory
 networks:
   default:
     name: foodgen_network
