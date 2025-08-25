@@ -27,4 +27,4 @@ RUN git clone https://github.com/KhoiDOO/foodgen.git
 
 WORKDIR /git/foodgen
 
-CMD python3 train_vqganvae.py -h
+CMD bash/script/vqganvae.sh
