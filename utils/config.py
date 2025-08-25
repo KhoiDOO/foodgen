@@ -17,6 +17,8 @@ class ExperimentConfig:
     exp_dir: str = ""
     trial_dir: str = ""
     seed: int = 42
+    train: bool = False
+    test: bool = False
     ###
 
     model: str = ""
@@ -34,7 +36,6 @@ class ExperimentConfig:
         os.makedirs(self.exp_dir, exist_ok=True)
 
         now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        trial_dir = os.path.join(self.exp_dir, now)
 
         self.trial_dir = os.path.join(self.exp_dir, now)
         os.makedirs(self.trial_dir, exist_ok=True)

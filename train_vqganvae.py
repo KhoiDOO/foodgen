@@ -12,6 +12,8 @@ from accelerate.utils import DistributedDataParallelKwargs
 
 def main(args, extras):
 
+    print(extras)
+
     cfg: ExperimentConfig = load_config(args.config, cli_args=extras)
 
     main_model = getattr(models, cfg.model)(**cfg.model_config)

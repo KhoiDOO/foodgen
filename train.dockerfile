@@ -27,4 +27,11 @@ RUN git clone https://github.com/KhoiDOO/foodgen.git
 
 WORKDIR /git/foodgen
 
-CMD bash/script/vqganvae.sh
+CMD accelerate launch \
+    --mixed_precision=fp16 \
+    --num_processes=1 \
+    --num_machines=1 \
+    train_vqganvae.py \
+    --config config/vqganvae.yaml \
+    --train \
+    trainer_config.folder="./data/src"

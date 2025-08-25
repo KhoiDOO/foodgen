@@ -5,7 +5,7 @@ services:
       dockerfile: train.dockerfile
     image: foodgen:latest
     volumes:
-      - ./data:/data  # Mount local data directory
+      - ./data:/git/foodgen/data  # Mount local data directory
       - ./output:/git/foodgen/output  # Mount local result directory
     environment:
       - token=${token}
