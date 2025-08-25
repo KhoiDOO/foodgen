@@ -3,6 +3,7 @@ import argparse
 
 import models
 import trainer
+import torch
 
 from omegaconf import OmegaConf
 
@@ -35,7 +36,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, help="path to config file")
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    # group = parser.add_mutually_exclusive_group(required=True)
 
     parser.add_argument("--train", action="store_true", help="Run training")
     parser.add_argument("--test", action="store_true", help="Run testing")

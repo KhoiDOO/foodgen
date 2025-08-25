@@ -26,7 +26,12 @@ from ema_pytorch import EMA
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+from datasets import load_dataset
+
 import wandb
+import os
+from omegaconf import OmegaConf
+from glob import glob
 
 # helper functions
 
@@ -94,15 +99,16 @@ class ImageDataset(Dataset):
         super().__init__()
         self.folder = folder
         self.image_size = image_size
-        self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'**/*.{ext}')]
+        # self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'*.{ext}')]
+        self.paths = glob(f'{folder}/*')
 
         print(f'{len(self.paths)} training samples found at {folder}')
 
         self.transform = T.Compose([
-            T.Lambda(lambda img: img.convert('RGB') if img.mode != 'RGB' else img),
+            # T.Lambda(lambda img: img.convert('RGB') if img.mode != 'RGB' else img),
             T.Resize(image_size),
             T.RandomHorizontalFlip(),
-            T.CenterCrop(image_size),
+            # T.CenterCrop(image_size),
             T.ToTensor()
         ])
 
@@ -113,6 +119,32 @@ class ImageDataset(Dataset):
         path = self.paths[index]
         img = Image.open(path)
         return self.transform(img)
+
+class Food101(Dataset):
+    def __init__(
+            self,
+            folder,
+            image_size,
+            split='train'
+        ):
+        super().__init__()
+
+        self.ds = load_dataset("ethz/food101", cache_dir=folder)[split]
+        self.image_size = image_size
+
+        self.transform = T.Compose([
+            T.Lambda(lambda img: img.convert('RGB') if img.mode != 'RGB' else img),
+            T.Resize((image_size, image_size)),
+            T.RandomHorizontalFlip(),
+            # T.CenterCrop(image_size),
+            T.ToTensor()
+        ])
+
+    def __len__(self):
+        return len(self.ds)
+
+    def __getitem__(self, index):
+        return self.transform(self.ds[index]['image'])
 
 # main trainer class
 
@@ -147,7 +179,15 @@ class VQGanVAETrainer(nn.Module):
 
         # instantiate wandb
 
-        self.run = wandb.init(**wandb_kwargs)
+        wandb.login(key=wandb_kwargs['api_key'])
+
+        self.run = wandb.init(
+            project=wandb_kwargs['project'],
+            entity=wandb_kwargs['entity'],
+            config=OmegaConf.to_container(OmegaConf.create(
+                os.path.join(results_folder, 'config.yaml')
+            )),
+        )
 
         # instantiate accelerator
 
@@ -193,18 +233,20 @@ class VQGanVAETrainer(nn.Module):
 
         # create dataset
 
-        self.ds = ImageDataset(folder, image_size)
+        # self.ds = ImageDataset(folder, image_size)
+        self.ds = Food101(folder, image_size, split='train')
+        self.valid_ds = Food101(folder, image_size, split='validation')
 
         # split for validation
 
-        if valid_frac > 0:
-            train_size = int((1 - valid_frac) * len(self.ds))
-            valid_size = len(self.ds) - train_size
-            self.ds, self.valid_ds = random_split(self.ds, [train_size, valid_size], generator = torch.Generator().manual_seed(random_split_seed))
-            self.print(f'training with dataset of {len(self.ds)} samples and validating with randomly splitted {len(self.valid_ds)} samples')
-        else:
-            self.valid_ds = self.ds
-            self.print(f'training with shared training and valid dataset of {len(self.ds)} samples')
+        # if valid_frac > 0:
+        #     train_size = int((1 - valid_frac) * len(self.ds))
+        #     valid_size = len(self.ds) - train_size
+        #     self.ds, self.valid_ds = random_split(self.ds, [train_size, valid_size], generator = torch.Generator().manual_seed(random_split_seed))
+        #     self.print(f'training with dataset of {len(self.ds)} samples and validating with randomly splitted {len(self.valid_ds)} samples')
+        # else:
+        #     self.valid_ds = self.ds
+        #     self.print(f'training with shared training and valid dataset of {len(self.ds)} samples')
 
         # dataloader
 
@@ -252,8 +294,8 @@ class VQGanVAETrainer(nn.Module):
 
         self.results_folder = Path(results_folder)
 
-        if len([*self.results_folder.glob('**/*')]) > 0 and yes_or_no('do you want to clear previous experiment checkpoints and results?'):
-            rmtree(str(self.results_folder))
+        # if len([*self.results_folder.glob('**/*')]) > 0 and yes_or_no('do you want to clear previous experiment checkpoints and results?'):
+        #     rmtree(str(self.results_folder))
 
         self.results_folder.mkdir(parents = True, exist_ok = True)
 
@@ -384,12 +426,12 @@ class VQGanVAETrainer(nn.Module):
                 valid_data = valid_data.to(device)
 
                 recons = model(valid_data, return_recons = True)
-                valoss = model(valid_data, return_loss = True).item()
+                # valoss = model(valid_data, return_loss = True).item()
 
-                if 'ema' in filename:
-                    logs['val_loss_ema'] = valoss
-                else:
-                    logs['val_loss'] = valoss
+                # if 'ema' in filename:
+                #     logs['val_loss_ema'] = valoss
+                # else:
+                #     logs['val_loss'] = valoss
 
                 # else save a grid of images
 
@@ -403,9 +445,9 @@ class VQGanVAETrainer(nn.Module):
 
                 save_image(grid, str(self.results_folder / f'{filename}.png'))
 
-            self.run.log({'val_loss' : logs['val_loss']}, step=steps)
-            if self.use_ema:
-                self.run.log({'val_loss_ema' : logs['val_loss_ema']}, step=steps)
+            # self.run.log({'val_loss' : logs['val_loss']}, step=steps)
+            # if self.use_ema:
+            #     self.run.log({'val_loss_ema' : logs['val_loss_ema']}, step=steps)
 
             self.print(f'{steps}: saving to {str(self.results_folder)}')
 

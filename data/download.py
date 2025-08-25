@@ -1,6 +1,7 @@
 import os
 import csv
 from tqdm import tqdm
+import PIL
 from PIL import Image
 from multiprocessing import Pool
 import argparse
@@ -31,8 +32,11 @@ with open(csv_path, newline='') as csvfile:
 def process_url(url):
     filename = os.path.basename(url)
     out_path = os.path.join(output_dir, filename)
-    curl_cmd = f"curl -f -L -o '{out_path}' '{url}' > /dev/null 2>&1"
-    ret = os.system(curl_cmd)
+    if not os.path.exists(out_path):
+        curl_cmd = f"curl -f -L -o '{out_path}' '{url}' > /dev/null 2>&1"
+        ret = os.system(curl_cmd)
+    else:
+        ret = 0
     if ret != 0:
         return
     try:
@@ -40,6 +44,24 @@ def process_url(url):
             img = img.resize((256, 256), Image.LANCZOS)
             img.save(out_path)
     except Exception:
+        os.remove(out_path)
+        return
+    
+    # try open image if any Warnings remove it
+    try:
+        with Image.open(out_path) as img:
+            img.verify()
+    except Exception:
+        os.remove(out_path)
+        return
+
+    # check if image mode is not RGB or max value > 255 remove it
+    try:
+        with Image.open(out_path) as img:
+            if img.mode != "RGB" or img.getextrema() > (255, 255, 255):
+                os.remove(out_path)
+    except Exception:
+        os.remove(out_path)
         return
 
 if __name__ == "__main__":

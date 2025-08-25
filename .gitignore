@@ -209,3 +209,12 @@ __marimo__/
 # Data
 
 data/src/
+data/food101/
+
+# Weight
+
+weight/*.pth
+
+# Exp
+
+outputs/

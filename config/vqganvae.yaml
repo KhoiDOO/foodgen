@@ -1,5 +1,5 @@
 name: vqganvae
-exp_root_dir: outputs
+exp_root_dir: ./outputs
 exp_dir: ""
 trial_dir: ""
 seed: 42
@@ -29,10 +29,10 @@ trainer: VQGanVAETrainer
 trainer_config:
   folder: null
   num_train_steps: 50000
-  batch_size: 4
-  image_size: 256
+  batch_size: 64
+  image_size: 128
   lr: 0.0003
-  grad_accum_every: 1
+  grad_accum_every: 16
   max_grad_norm: null
   discr_max_grad_norm: null
   save_results_every: 100

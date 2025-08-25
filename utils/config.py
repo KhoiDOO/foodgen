@@ -40,6 +40,8 @@ class ExperimentConfig:
         self.trial_dir = os.path.join(self.exp_dir, now)
         os.makedirs(self.trial_dir, exist_ok=True)
 
+        dump_config(os.path.join(self.trial_dir, "config.yaml"), self)
+
 def load_config(*yamls: str, cli_args: list = [], from_string=False, **kwargs) -> ExperimentConfig:
     if from_string:
         yaml_confs = [OmegaConf.create(s) for s in yamls]
