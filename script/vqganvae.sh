@@ -4,4 +4,5 @@ accelerate launch \
     --num_machines=1 \
     train_vqganvae.py \
     --config config/vqganvae.yaml \
+    --train \
     trainer_config.folder="./data/src"

@@ -33,12 +33,12 @@ spec:
             df -h
             cd /mnt/data
             pip --version
-            pip install pillow tqdm
+            pip install -U pip wheel
             if [ ! -d "foodgen" ]; then
               git clone https://${GITHUB_TOKEN}@github.com/KhoiDOO/foodgen.git
             fi
-            cd foodgen/data
-            python3 download.py
+            cd foodgen/
+            
         volumeMounts:
         - {name: home, mountPath: /workspace}
         - {name: data, mountPath: /mnt/data}

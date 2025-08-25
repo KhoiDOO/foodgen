@@ -2,7 +2,6 @@ name: vqganvae
 exp_root_dir: outputs
 exp_dir: ""
 trial_dir: ""
-n_gpus: 1
 seed: 42
 
 model: VQGanVAE

@@ -16,7 +16,6 @@ class ExperimentConfig:
     ### these shouldn't be set manually
     exp_dir: str = ""
     trial_dir: str = ""
-    n_gpus: int = 1
     seed: int = 42
     ###
 

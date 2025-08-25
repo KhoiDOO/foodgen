@@ -26,6 +26,8 @@ from ema_pytorch import EMA
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+import wandb
+
 # helper functions
 
 def exists(val):
@@ -138,9 +140,14 @@ class VQGanVAETrainer(nn.Module):
         ema_update_after_step = 0,
         ema_update_every = 1,
         apply_grad_penalty_every = 4,
-        accelerate_kwargs: dict = dict()
+        accelerate_kwargs: dict = dict(),
+        wandb_kwargs: dict = dict()
     ):
         super().__init__()
+
+        # instantiate wandb
+
+        self.run = wandb.init(**wandb_kwargs)
 
         # instantiate accelerator
 
@@ -323,6 +330,8 @@ class VQGanVAETrainer(nn.Module):
 
             accum_log(logs, {'loss': loss.item() / self.grad_accum_every})
 
+        self.run.log({'loss' : logs['loss'], 'lr' : self.optim.param_groups[0]['lr']}, step=steps)
+
         if exists(self.max_grad_norm):
             self.accelerator.clip_grad_norm_(self.vae.parameters(), self.max_grad_norm)
 
@@ -353,6 +362,8 @@ class VQGanVAETrainer(nn.Module):
 
             self.print(f"{steps}: vae loss: {logs['loss']} - discr loss: {logs['discr_loss']}")
 
+            self.run.log({'discr_loss' : logs['discr_loss']}, step=steps)
+
         # update exponential moving averaged generator
 
         if self.use_ema:
@@ -373,6 +384,12 @@ class VQGanVAETrainer(nn.Module):
                 valid_data = valid_data.to(device)
 
                 recons = model(valid_data, return_recons = True)
+                valoss = model(valid_data, return_loss = True).item()
+
+                if 'ema' in filename:
+                    logs['val_loss_ema'] = valoss
+                else:
+                    logs['val_loss'] = valoss
 
                 # else save a grid of images
 
@@ -385,6 +402,10 @@ class VQGanVAETrainer(nn.Module):
                 logs['reconstructions'] = grid
 
                 save_image(grid, str(self.results_folder / f'{filename}.png'))
+
+            self.run.log({'val_loss' : logs['val_loss']}, step=steps)
+            if self.use_ema:
+                self.run.log({'val_loss_ema' : logs['val_loss_ema']}, step=steps)
 
             self.print(f'{steps}: saving to {str(self.results_folder)}')
 
