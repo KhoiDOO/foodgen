@@ -253,13 +253,15 @@ class VQGanVAETrainer(nn.Module):
         self.dl = DataLoader(
             self.ds,
             batch_size = batch_size,
-            shuffle = True
+            shuffle = True,
+            num_workers=16
         )
 
         self.valid_dl = DataLoader(
             self.valid_ds,
             batch_size = batch_size,
-            shuffle = True
+            shuffle = True,
+            num_workers=16
         )
 
         # prepare with accelerator

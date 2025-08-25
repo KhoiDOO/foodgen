@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: train_vqganvae.dockerfile
     image: foodgen:latest
+    shm_size: '16g'
     volumes:
       - ./data:/git/foodgen/data  # Mount local data directory
       - ./outputs:/git/foodgen/outputs  # Mount local result directory
